@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "SmartEGE",
+  "version": "1.1.0",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "description": "AI educational assistant for EGE/OGE students — instant hints and theory on every task",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/content.js-loader-CFli_bto.js"
+      ],
+      "matches": [
+        "*://reshu.ru/*",
+        "*://*.reshu.ru/*",
+        "*://sdamgia.ru/*",
+        "*://*.sdamgia.ru/*",
+        "*://oge.sdamgia.ru/*",
+        "*://ege.sdamgia.ru/*",
+        "*://fipi.ru/*",
+        "*://*.fipi.ru/*"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "resources": [
+        "knowledge/*",
+        "icons/*",
+        "assets/*"
+      ],
+      "use_dynamic_url": false
+    },
+    {
+      "matches": [
+        "*://*.fipi.ru/*",
+        "*://*.reshu.ru/*",
+        "*://*.sdamgia.ru/*",
+        "*://ege.sdamgia.ru/*",
+        "*://fipi.ru/*",
+        "*://oge.sdamgia.ru/*",
+        "*://reshu.ru/*",
+        "*://sdamgia.ru/*"
+      ],
+      "resources": [
+        "assets/statsService-CnppOJvE.js",
+        "assets/content.js-BnqmgZsk.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "SmartEGE",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
+}

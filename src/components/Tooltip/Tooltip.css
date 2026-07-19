@@ -1,0 +1,75 @@
+/* ── SmartEGE Tooltip shell ── */
+
+.sege-tooltip {
+  position: absolute;
+  z-index: 2147483647;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 300px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 6px -1px rgba(0,0,0,0.08),
+    0 20px 40px -8px rgba(108,71,255,0.18),
+    0 0 0 1px rgba(108,71,255,0.12);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1e1e2d;
+  animation: sege-fade-in 0.18s ease;
+  overflow: hidden;
+}
+
+@keyframes sege-fade-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sege-tooltip__arrow {
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  width: 12px;
+  height: 12px;
+  background: #6c47ff;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+/* Header */
+.sege-tooltip__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 9px;
+  background: linear-gradient(135deg, #6c47ff 0%, #a855f7 100%);
+}
+
+.sege-tooltip__subject {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.sege-tooltip__close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.sege-tooltip__close:hover {
+  background: rgba(255,255,255,0.3);
+}
