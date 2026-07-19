@@ -4,7 +4,7 @@ const STEPS = [
   { num: '1', text: 'Открой задание на reshu.ru или sdamgia.ru' },
   { num: '2', text: 'Нажми 💡 рядом с заданием — подсказка появится сразу' },
   { num: '3', text: 'Переключай уровень: 20%, 50% или полное объяснение' },
-  { num: '4', text: 'Войди через Google, чтобы получить AI-подсказки' },
+  { num: '4', text: 'Войди через Google для AI-подсказок и синхронизации' },
 ]
 
 export default function HowItWorksSection() {

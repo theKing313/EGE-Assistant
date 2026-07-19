@@ -33,3 +33,8 @@ waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[userenv]
+
+[userenv.shared]
+VITE_API_URL = "https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev:3001"

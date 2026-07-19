@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import './App.css'
-import UserSection      from './popup/sections/UserSection.jsx'
-import StatsSection     from './popup/sections/StatsSection.jsx'
-import HistorySection   from './popup/sections/HistorySection.jsx'
+import UserSection       from './popup/sections/UserSection.jsx'
+import StatsSection      from './popup/sections/StatsSection.jsx'
+import HistorySection    from './popup/sections/HistorySection.jsx'
 import HowItWorksSection from './popup/sections/HowItWorksSection.jsx'
 import * as storageService from './services/storageService.js'
 import * as statsService   from './services/statsService.js'
 
+const SUPPORTED = ['reshu.ru', 'sdamgia.ru', 'fipi.ru']
+
 export default function App() {
   const [enabled,     setEnabled]     = useState(true)
+  const [mode,        setMode]        = useState('ege')
   const [stats,       setStats]       = useState(null)
   const [history,     setHistory]     = useState([])
   const [currentSite, setCurrentSite] = useState(null)
   const [isSupported, setIsSupported] = useState(false)
   const [loading,     setLoading]     = useState(true)
-
-  const SUPPORTED = ['reshu.ru', 'sdamgia.ru', 'fipi.ru']
 
   useEffect(() => {
     Promise.all([
@@ -24,6 +25,7 @@ export default function App() {
       statsService.getHistory(),
     ]).then(([all, st, hist]) => {
       setEnabled(all.enabled ?? true)
+      setMode(all.mode ?? 'ege')
       setStats(st)
       setHistory(hist)
       setLoading(false)
@@ -44,6 +46,11 @@ export default function App() {
     await storageService.set('enabled', next)
   }, [enabled])
 
+  const handleModeChange = useCallback(async (newMode) => {
+    setMode(newMode)
+    await storageService.set('mode', newMode)
+  }, [])
+
   if (loading) {
     return (
       <div className="popup popup--loading">
@@ -60,12 +67,10 @@ export default function App() {
           <span className="popup-header__icon">💡</span>
           <span className="popup-header__name">SmartEGE</span>
         </div>
-
         <button
           className={`popup-toggle ${enabled ? 'popup-toggle--on' : 'popup-toggle--off'}`}
           onClick={handleToggle}
           aria-label={enabled ? 'Выключить' : 'Включить'}
-          title={enabled ? 'Выключить расширение' : 'Включить расширение'}
         >
           <span className="popup-toggle__knob" />
         </button>
@@ -79,14 +84,15 @@ export default function App() {
             ? `Активно на ${currentSite}`
             : currentSite
               ? `${currentSite} — не поддерживается`
-              : 'Откройте учебный сайт'}
+              : 'Откройте учебный сайт'
+          }
         </span>
       </div>
 
       {/* Body */}
       <main className="popup-body">
-        <UserSection />
-        <StatsSection  stats={stats} />
+        <UserSection mode={mode} onModeChange={handleModeChange} />
+        <StatsSection stats={stats} />
         <HistorySection history={history} />
         <HowItWorksSection />
       </main>

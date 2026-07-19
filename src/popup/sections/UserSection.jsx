@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import * as authService from '../../services/authService.js'
 import * as subscriptionService from '../../services/subscriptionService.js'
+import * as storageService from '../../services/storageService.js'
 import AuthModal from '../../components/AuthModal/AuthModal.jsx'
 
-const PLAN_LABELS = {
-  free: { label: 'Free', color: '#6b7280', bg: '#f3f4f6' },
-  premium: { label: 'Premium ✨', color: '#d97706', bg: '#fffbeb' },
-}
+const MODES = [
+  { id: 'ege',        label: 'ЕГЭ'  },
+  { id: 'oge',        label: 'ОГЭ'  },
+  { id: 'university', label: 'Свой' },
+]
 
-export default function UserSection() {
-  const [user, setUser] = useState(null)
-  const [plan, setPlan] = useState('free')
+export default function UserSection({ mode, onModeChange }) {
+  const [user,     setUser]     = useState(null)
+  const [plan,     setPlan]     = useState('free')
   const [showAuth, setShowAuth] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading,  setLoading]  = useState(true)
 
   useEffect(() => {
     Promise.all([
@@ -20,7 +22,7 @@ export default function UserSection() {
       subscriptionService.getStatus(),
     ]).then(([u, sub]) => {
       setUser(u)
-      setPlan(sub.plan || 'free')
+      setPlan(sub?.plan || 'free')
       setLoading(false)
     })
   }, [])
@@ -36,45 +38,65 @@ export default function UserSection() {
     setUser(newUser)
     setShowAuth(false)
     const sub = await subscriptionService.getStatus(true)
-    setPlan(sub.plan || 'free')
+    setPlan(sub?.plan || 'free')
   }
 
   if (loading) return <div className="user-section user-section--loading" />
 
-  const planMeta = PLAN_LABELS[plan] || PLAN_LABELS.free
-
   return (
-    <section className="popup-section user-section">
+    <div className="user-section">
       {showAuth && (
         <AuthModal
           onSuccess={handleAuthSuccess}
           onClose={() => setShowAuth(false)}
-          reason="Войди, чтобы получить доступ к AI-подсказкам и сохранению прогресса."
+          reason="Войди, чтобы сохранять прогресс и получить AI-подсказки."
         />
       )}
 
-      {user ? (
-        <div className="user-card">
-          <div className="user-card__avatar">
-            {user.avatar
-              ? <img src={user.avatar} alt={user.name} className="user-card__avatar-img" />
-              : <span className="user-card__avatar-fallback">{user.name?.[0] || '?'}</span>
+      {/* Avatar + name row */}
+      <div className="user-card">
+        <div className="user-card__avatar">
+          {user?.avatar
+            ? <img src={user.avatar} alt={user.name} className="user-card__avatar-img" />
+            : user?.name
+              ? <span className="user-card__avatar-fallback">{user.name[0]}</span>
+              : <span className="user-card__avatar-guest">👤</span>
+          }
+        </div>
+        <div className="user-card__info">
+          <div className="user-card__name">
+            {user ? (user.name || user.email) : 'Гость'}
+          </div>
+          <div className="user-card__sub">
+            {user
+              ? (plan === 'premium' ? '✨ Premium' : 'Free план')
+              : 'Войти для синхронизации'
             }
           </div>
-          <div className="user-card__info">
-            <span className="user-card__name">{user.name || user.email}</span>
-            <span
-              className="user-card__plan"
-              style={{ color: planMeta.color, background: planMeta.bg }}
-            >
-              {planMeta.label}
-            </span>
-          </div>
+        </div>
+        {user && (
           <button className="user-card__signout" onClick={handleSignOut} title="Выйти">
             ↩
           </button>
-        </div>
-      ) : (
+        )}
+      </div>
+
+      {/* Mode selector */}
+      <div className="mode-label">Режим подготовки</div>
+      <div className="mode-buttons">
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            className={`mode-btn ${mode === m.id ? 'mode-btn--active' : ''}`}
+            onClick={() => onModeChange?.(m.id)}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sign-in prompt for guests */}
+      {!user && (
         <button className="user-signin-btn" onClick={() => setShowAuth(true)}>
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -85,6 +107,6 @@ export default function UserSection() {
           Войти через Google
         </button>
       )}
-    </section>
+    </div>
   )
 }
