@@ -1,57 +1,58 @@
 /**
- * hintService.js
- * All hint-level business logic lives here.
- * Components never decide which content to show — they call this service.
- *
- * Future: replace getContent() body with an AI API call when ready.
- * The interface stays identical — only the data source changes.
+ * hintService.js — hint level definitions and content extraction.
+ * Supports both JSON-sourced and AI-sourced entries identically.
  */
 
 export const LEVELS = [
   {
     id: 'hint20',
-    label: '👀 Намек',
+    label: 'Намёк',
+    shortLabel: '20%',
     description: 'Маленькая зацепка',
+    icon: '👀',
     color: '#16a34a',
     bg: '#f0fdf4',
     border: '#bbf7d0',
   },
   {
     id: 'hint50',
-    label: '🧠 Объяснить идею',
+    label: 'Идея',
+    shortLabel: '50%',
     description: 'Идея решения',
+    icon: '🧠',
     color: '#d97706',
     bg: '#fffbeb',
     border: '#fde68a',
   },
   {
     id: 'full',
-    label: '📚 Полностью разобрать',
+    label: 'Полностью',
+    shortLabel: '100%',
     description: 'Теория и правило',
-    color: '#6c47ff',
-    bg: '#faf5ff',
-    border: '#e9d5ff',
+    icon: '📚',
+    color: '#2563eb',
+    bg: '#eff6ff',
+    border: '#bfdbfe',
   },
 ]
 
 export const LEVEL_MAP = Object.fromEntries(LEVELS.map((l) => [l.id, l]))
 
 /**
- * Extract content for a given hint level from a knowledge entry.
+ * Extract displayable content for a given hint level from any entry
+ * (JSON or AI-generated — both shapes are supported).
  *
- * @param {object} entry   - A topic entry (from knowledgeService)
+ * @param {object} entry   - topic entry from knowledgeService
  * @param {string} levelId - 'hint20' | 'hint50' | 'full'
- * @returns {{ title, text, example?, levelMeta } | null}
- *
- * AI integration point: replace this function body with:
- *   return await aiService.getHint(entry, levelId)
- * The return shape stays the same.
+ * @returns {{ title, text, example, levelMeta, isAI } | null}
  */
 export function getContent(entry, levelId) {
   if (!entry) return null
 
   const levelMeta = LEVEL_MAP[levelId]
   if (!levelMeta) return null
+
+  const isAI = entry._source === 'ai' || entry._source === 'ai-cache'
 
   switch (levelId) {
     case 'hint20':
@@ -60,20 +61,23 @@ export function getContent(entry, levelId) {
         text: entry.hint20 || 'Подсказка недоступна.',
         example: null,
         levelMeta,
+        isAI,
       }
     case 'hint50':
       return {
         title: entry.title,
-        text: entry.hint50 || 'Подсказка недоступна.',
+        text: entry.hint50 || entry.hint20 || 'Подсказка недоступна.',
         example: null,
         levelMeta,
+        isAI,
       }
     case 'full':
       return {
         title: entry.title,
-        text: entry.full?.rule || 'Объяснение недоступно.',
+        text: entry.full?.rule || entry.hint50 || 'Объяснение недоступно.',
         example: entry.full?.example || null,
         levelMeta,
+        isAI,
       }
     default:
       return null

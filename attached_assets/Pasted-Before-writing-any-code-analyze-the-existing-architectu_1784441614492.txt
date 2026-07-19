@@ -1,0 +1,216 @@
+Before writing any code, analyze the existing architecture and reuse as much as possible. Do not rebuild working functionality.
+
+1. AI fallback (IMPORTANT)
+
+Currently hints come only from local JSON.
+
+Keep JSON as the primary source because it is free.
+
+New behavior:
+
+First search inside knowledge JSON.
+If a matching rule exists → use JSON only.
+If nothing relevant is found → call the AI API.
+
+The AI must NEVER be called if JSON already contains a suitable answer.
+
+Create an aiService responsible for all AI requests.
+
+Implement:
+
+request timeout
+retries
+error handling
+request logging
+
+Prepare it so that later I can simply insert my API key.
+
+Also implement a daily usage limiter.
+
+Example:
+
+Free users:
+maximum 20 AI requests per day
+Premium users:
+configurable limit (default 300/day)
+
+The limits must be stored on the backend, not in the browser.
+
+The goal is to guarantee predictable costs.
+
+2. Authentication
+
+Implement authentication.
+
+Login must be via Google OAuth.
+
+When the user opens premium functionality and is not authenticated:
+
+Show a modal:
+
+Continue with Google
+
+The authentication must work with the backend.
+
+Store:
+
+user id
+email
+avatar
+createdAt
+
+Prepare everything for subscriptions.
+
+3. Subscription system
+
+Create subscription support.
+
+Prepare backend database tables.
+
+Subscription status:
+
+Free
+Premium
+
+Premium unlocks:
+
+Unlimited JSON hints
+AI fallback
+Full explanations
+Future features
+
+Do not hardcode anything.
+
+Everything must come from the backend.
+
+4. UI redesign
+
+I will attach reference images.
+
+Redesign the entire extension to match them.
+
+Current purple design should be removed.
+
+Use the attached mockups as closely as possible.
+
+Modern.
+
+Minimal.
+
+Clean.
+
+Rounded.
+
+Smooth animations.
+
+No purple gradients.
+
+5. Hint popup redesign
+
+Current behavior:
+
+💡
+↓
+
+Choose hint level
+
+↓
+
+Hint appears
+
+Change it.
+
+New behavior:
+
+User clicks the lamp.
+
+Immediately show the first hint.
+
+Below it display three buttons:
+
+• Show 20%
+
+• Show 50%
+
+• Show Full explanation
+
+The first hint should already be visible without another click.
+
+6. Lamp redesign
+
+Remove the "Подсказка" text completely.
+
+Leave only the lamp icon.
+
+The lamp should be larger.
+
+Hover animation.
+
+Click animation.
+
+Modern look.
+
+7. Backend
+
+Review the backend architecture.
+
+Improve it if necessary.
+
+Keep it scalable.
+
+Separate:
+
+auth
+subscriptions
+AI
+knowledge
+users
+history
+billing
+
+Use services and repositories.
+
+Avoid duplicated logic.
+
+8. Cost optimization
+
+The architecture must minimize AI costs.
+
+Priority:
+
+JSON
+
+↓
+
+Cache
+
+↓
+
+AI
+
+↓
+
+Save AI response
+
+↓
+
+Reuse later
+
+If AI generates a useful explanation, cache it so future users don't pay for the same request again.
+
+9. Before implementation
+
+Before modifying any code:
+
+Explain
+
+what architecture you are going to build,
+what files will change,
+what new folders will appear,
+and why.
+
+Then implement everything.
+
+Do not simplify.
+
+Build this as a production-ready application.

@@ -2,15 +2,11 @@ import React, { useState } from 'react'
 
 const STEPS = [
   { num: '1', text: 'Открой задание на reshu.ru или sdamgia.ru' },
-  { num: '2', text: 'Рядом с каждым заданием появится кнопка 💡 Подсказка' },
-  { num: '3', text: 'Выбери уровень: 20%, 50% или полное объяснение' },
-  { num: '4', text: 'Читай подсказку и решай самостоятельно!' },
+  { num: '2', text: 'Нажми 💡 рядом с заданием — подсказка появится сразу' },
+  { num: '3', text: 'Переключай уровень: 20%, 50% или полное объяснение' },
+  { num: '4', text: 'Войди через Google, чтобы получить AI-подсказки' },
 ]
 
-/**
- * HowItWorksSection — collapsible informational block.
- * No external data or callbacks needed.
- */
 export default function HowItWorksSection() {
   const [open, setOpen] = useState(false)
 

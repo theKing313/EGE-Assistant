@@ -12,12 +12,12 @@ import { injectStyles, createLampMount } from '../utils/domHelper.js'
 import Lamp from '../components/Lamp/Lamp.jsx'
 
 // All content-script CSS imported inline (Vite ?inline) and injected once
-import lampCss         from '../components/Lamp/Lamp.css?inline'
-import tooltipCss      from '../components/Tooltip/Tooltip.css?inline'
-import selectorCss     from '../components/HintSelector/HintSelector.css?inline'
-import contentCss      from '../components/HintContent/HintContent.css?inline'
+import lampCss       from '../components/Lamp/Lamp.css?inline'
+import tooltipCss    from '../components/Tooltip/Tooltip.css?inline'
+import hintContentCss from '../components/HintContent/HintContent.css?inline'
+import authModalCss  from '../components/AuthModal/AuthModal.css?inline'
 
-injectStyles([lampCss, tooltipCss, selectorCss, contentCss].join('\n'))
+injectStyles([lampCss, tooltipCss, hintContentCss, authModalCss].join('\n'))
 
 // Track mounted React roots — never double-mount the same task element
 const mountedRoots = new WeakMap()

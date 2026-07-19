@@ -1,43 +1,26 @@
 import React from 'react'
 
-/**
- * StatsSection — purely presentational.
- * Receives stats object from App.jsx (loaded via statsService).
- */
-export default function StatsSection({ stats }) {
-  const { hint20 = 0, hint50 = 0, full = 0, total = 0 } = stats || {}
+const STAT_ITEMS = [
+  { key: 'total',  label: 'Всего',    icon: '📊' },
+  { key: 'hint20', label: 'Намёков',  icon: '👀' },
+  { key: 'hint50', label: 'Идей',     icon: '🧠' },
+  { key: 'full',   label: 'Полных',   icon: '📚' },
+]
 
-  const rows = [
-    { label: 'Подсказок 20%',         value: hint20, color: '#16a34a' },
-    { label: 'Подсказок 50%',         value: hint50, color: '#d97706' },
-    { label: 'Полных объяснений',      value: full,   color: '#6c47ff' },
-  ]
+export default function StatsSection({ stats }) {
+  if (!stats) return null
 
   return (
     <section className="popup-section">
-      <h3 className="popup-section__title">📊 Статистика</h3>
-
-      <div className="stats-total">
-        <span className="stats-total__num">{total}</span>
-        <span className="stats-total__label">заданий просмотрено</span>
-      </div>
-
-      <div className="stats-rows">
-        {rows.map((row) => (
-          <div key={row.label} className="stats-row">
-            <span className="stats-row__label">{row.label}</span>
-            <span className="stats-row__value" style={{ color: row.color }}>
-              {row.value}
-            </span>
+      <p className="popup-section__title">Статистика</p>
+      <div className="stats-grid">
+        {STAT_ITEMS.map(({ key, label, icon }) => (
+          <div key={key} className="stat-card">
+            <span className="stat-card__value">{stats[key] ?? 0}</span>
+            <span className="stat-card__label">{label}</span>
           </div>
         ))}
       </div>
-
-      {total === 0 && (
-        <p className="stats-empty">
-          Ещё нет данных — открой задание и нажми 💡
-        </p>
-      )}
     </section>
   )
 }
