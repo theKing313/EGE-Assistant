@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "server": "node server/index.js",
     "server:dev": "node --watch server/index.js",
-    "dev:all": "concurrently \"npm run server:dev\" \"npm run dev\""
+    "dev:all": "concurrently \"npm run server:dev\" \"npm run dev\"",
+    "migrate": "node server/migrate.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
