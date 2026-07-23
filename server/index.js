@@ -29,19 +29,27 @@ const PORT = process.env.PORT || 3001
 app.use(helmet())
 
 const allowedOrigins = [
-  /^chrome-extension:\/\//,           // Chrome extension
+  /^chrome-extension:\/\//,           // Chrome extension (popup + content script)
   /\.replit\.dev$/,                    // Replit dev domains
   /\.repl\.co$/,                       // Replit deployed domains
   'http://localhost:5173',             // Vite dev server
+  'http://localhost:3001',             // Local backend (same-origin curl / health checks)
+  // Supported exam sites — content script fetch runs with page origin
+  /\.sdamgia\.ru$/,
+  /\.reshu\.ru$/,
+  /\.fipi\.ru$/,
+  /\.ege\.ru$/,
 ]
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true) // same-origin / non-browser
+    if (!origin) return callback(null, true) // server-to-server / curl
     const allowed = allowedOrigins.some((pattern) =>
       typeof pattern === 'string' ? origin === pattern : pattern.test(origin)
     )
-    callback(allowed ? null : new Error('CORS not allowed'), allowed)
+    if (allowed) return callback(null, true)
+    // Return 403, not an unhandled error — keeps logs clean
+    callback(null, false)
   },
   credentials: true,
 }))
