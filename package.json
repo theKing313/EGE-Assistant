@@ -1,19 +1,33 @@
 {
   "name": "smartege",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "server:dev": "node --watch server/index.js",
+    "dev:all": "concurrently \"npm run server:dev\" \"npm run dev\"",
+    "migrate": "node server/migrate.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "google-auth-library": "^9.15.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
     "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.1.2",
     "vite": "^5.4.10"
   }
 }

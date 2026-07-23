@@ -1,39 +1,32 @@
-/* ── SmartEGE Tooltip shell ── */
+/* ── SmartEGE Tooltip — clean minimal card ── */
 
 .sege-tooltip {
   position: absolute;
-  z-index: 2147483647;
-  top: calc(100% + 10px);
+  top: calc(100% + 8px);
   left: 0;
+  z-index: 99999;
   width: 300px;
+  max-width: calc(100vw - 24px);
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow:
-    0 4px 6px -1px rgba(0,0,0,0.08),
-    0 20px 40px -8px rgba(108,71,255,0.18),
-    0 0 0 1px rgba(108,71,255,0.12);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #1e1e2d;
-  animation: sege-fade-in 0.18s ease;
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 10px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  animation: sege-tooltip-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes sege-fade-in {
-  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.sege-tooltip__arrow {
-  position: absolute;
-  top: -6px;
-  left: 20px;
-  width: 12px;
-  height: 12px;
-  background: #6c47ff;
-  transform: rotate(45deg);
-  border-radius: 2px;
+@keyframes sege-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Header */
@@ -41,35 +34,139 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px 9px;
-  background: linear-gradient(135deg, #6c47ff 0%, #a855f7 100%);
+  padding: 12px 14px 11px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.sege-tooltip__header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sege-tooltip__brand {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
 }
 
 .sege-tooltip__subject {
   font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
 .sege-tooltip__close {
-  background: rgba(255,255,255,0.15);
+  background: none;
   border: none;
-  color: #fff;
-  width: 20px;
-  height: 20px;
+  color: #9ca3af;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
   font-family: inherit;
 }
-
 .sege-tooltip__close:hover {
-  background: rgba(255,255,255,0.3);
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Body */
+.sege-tooltip__body {
+  padding: 14px 16px 12px;
+  min-height: 60px;
+}
+
+.sege-tooltip__loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.sege-tooltip__loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6b7280;
+  border-radius: 50%;
+  display: inline-block;
+  animation: sege-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sege-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Level switcher */
+.sege-tooltip__levels {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px 14px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.sege-tooltip__level-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 4px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  font-family: inherit;
+}
+
+.sege-tooltip__level-btn:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.sege-tooltip__level-btn:active {
+  transform: translateY(0);
+}
+
+.sege-tooltip__level-btn--active {
+  background: var(--active-bg, #eff6ff) !important;
+  border-color: var(--active-border, #bfdbfe) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  transform: none !important;
+}
+
+.sege-tooltip__level-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.sege-tooltip__level-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.sege-tooltip__level-btn--active .sege-tooltip__level-label {
+  color: var(--active-color, #2563eb);
 }

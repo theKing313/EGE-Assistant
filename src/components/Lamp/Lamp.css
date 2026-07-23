@@ -1,95 +1,107 @@
-/* ── SmartEGE Lamp Button ── */
+/* ── SmartEGE Lamp — icon only, modern minimal ── */
 
 .sege-lamp {
   display: inline-flex;
   position: relative;
   vertical-align: middle;
-  margin: 6px 0 6px 10px;
+  margin: 4px 0 4px 8px;
   z-index: 9999;
 }
 
 .sege-lamp__btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px 4px 7px;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #6c47ff 0%, #a855f7 100%);
-  color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 50%;
+  background: #f8f9fa;
+  border: 1.5px solid #e5e7eb;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(108, 71, 255, 0.35);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-  white-space: nowrap;
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
   user-select: none;
   outline: none;
+  flex-shrink: 0;
 }
 
 .sege-lamp__btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(108, 71, 255, 0.45);
+  transform: scale(1.15) translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  background: #fff;
+  border-color: #d1d5db;
 }
 
-.sege-lamp__btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 6px rgba(108, 71, 255, 0.35);
+.sege-lamp__btn:active,
+.sege-lamp__btn--active {
+  transform: scale(0.94);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #f3f4f6;
+  border-color: #d1d5db;
 }
 
 .sege-lamp__btn--active {
-  background: linear-gradient(135deg, #5535e0 0%, #9333ea 100%);
+  background: #fefce8;
+  border-color: #fde68a;
 }
 
 .sege-lamp__btn--loading {
-  opacity: 0.8;
-  cursor: wait;
+  pointer-events: none;
 }
 
 .sege-lamp__icon {
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.18s ease;
 }
 
-.sege-lamp__label {
-  font-size: 11px;
-  letter-spacing: 0.2px;
+.sege-lamp__btn:hover .sege-lamp__icon {
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
 }
 
-/* Loading spinner */
+.sege-lamp__btn--active .sege-lamp__icon {
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+}
+
 .sege-lamp__spinner {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #ffffff;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #6b7280;
   border-radius: 50%;
+  display: inline-block;
   animation: sege-spin 0.7s linear infinite;
-  flex-shrink: 0;
 }
 
 @keyframes sege-spin {
   to { transform: rotate(360deg); }
 }
 
-/* Error fallback inside tooltip container */
+/* Error fallback tooltip */
 .sege-error {
-  padding: 12px 16px;
-  font-size: 12px;
-  color: #ef4444;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-
 .sege-error button {
-  margin-top: 8px;
-  padding: 4px 10px;
-  background: #6c47ff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 6px 12px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
+  color: #374151;
+  font-family: inherit;
+  transition: background 0.15s;
 }
+.sege-error button:hover { background: #f3f4f6; }

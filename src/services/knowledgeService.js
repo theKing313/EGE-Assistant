@@ -1,16 +1,15 @@
 /**
  * knowledgeService.js
- * Loads and caches the local JSON knowledge base for each subject.
  *
- * Lookup strategy — TOPIC-FIRST, text-only:
- *   1. Normalize task text (lowercase, strip punctuation)
- *   2. Score each topic entry by keyword coverage
- *   3. Multi-word keyword phrases score higher (more specific)
- *   4. Task number is NEVER the primary key — only used for a small
- *      secondary score boost to break ties when two topics are close
+ * Lookup strategy (cost-optimized):
+ *   1. Load local JSON → score entries by keyword coverage
+ *   2. If score ≥ MIN_SCORE → return JSON entry (free, instant)
+ *   3. If no match       → call aiService (charged, cached server-side)
  *
- * This means the same JSON works for any EGE task, not just predefined ones.
+ * AI is NEVER called when JSON already has a suitable answer.
  */
+import { findBestMatch } from '../utils/textMatcher.js'
+import * as aiService from './aiService.js'
 
 const cache = {}
 
@@ -23,7 +22,6 @@ const SUBJECT_FILES = {
   history:   'knowledge/russian.json',
 }
 
-// Minimum keyword score to consider a match meaningful
 const MIN_SCORE = 1
 
 export async function loadKnowledge(subject) {
@@ -45,73 +43,55 @@ export async function loadKnowledge(subject) {
 }
 
 /**
- * Return the best-matching topic entry for the given task text.
- * Returns null when nothing matches (instead of a wrong fallback).
+ * Find the best hint entry for a task.
+ * Returns a knowledge entry (source: 'json') or an AI result (source: 'ai'/'ai-cache').
+ * Returns null only if both sources fail.
  *
- * @param {string} subject
- * @param {string} taskText   — raw visible text of the task element
- * @param {number|null} taskNumber — optional, used only as tiebreaker
+ * @param {string}      subject
+ * @param {string}      taskText
+ * @param {number|null} taskNumber
  */
 export async function findHint(subject, taskText, taskNumber = null) {
+  // 1. Try local JSON first
   const entries = await loadKnowledge(subject)
-  if (!entries.length) return null
+  const match = findBestMatch(entries, taskText, taskNumber, MIN_SCORE)
 
-  const normalized = normalizeText(taskText)
+  if (match) {
+    console.debug('[SmartEGE] JSON match:', match.title)
+    return { ...match, _source: 'json' }
+  }
 
-  let best = null
-  let bestScore = 0
+  // 2. No JSON match → ask AI (will hit backend cache first)
+  console.debug('[SmartEGE] No JSON match, trying AI fallback')
+  try {
+    const aiResult = await aiService.getHint({
+      subject,
+      taskText,
+      level: 'hint20', // backend returns a structured entry
+    })
 
-  for (const entry of entries) {
-    let score = scoreEntry(entry, normalized)
-
-    // Secondary micro-boost: taskNumber listed in entry's optional hintFor array
-    // This never overrides a clearly better keyword match, just breaks exact ties
-    if (taskNumber && Array.isArray(entry.hintFor) && entry.hintFor.includes(taskNumber)) {
-      score += 0.5
+    if (aiResult && !aiResult.error) {
+      return {
+        id: `ai_${Date.now()}`,
+        title: aiResult.title || 'Объяснение ИИ',
+        keywords: [],
+        hint20: aiResult.text,
+        hint50: aiResult.text,
+        full: { rule: aiResult.text, example: aiResult.example || null },
+        _source: aiResult.source || 'ai',
+      }
     }
 
-    if (score > bestScore) {
-      bestScore = score
-      best = entry
+    // AI not available or auth required — return first JSON entry as safe fallback
+    if (entries.length > 0) {
+      return { ...entries[0], _source: 'json-fallback' }
+    }
+  } catch (err) {
+    console.warn('[SmartEGE] AI fallback error:', err.message)
+    if (entries.length > 0) {
+      return { ...entries[0], _source: 'json-fallback' }
     }
   }
 
-  // Return best match, or fall back to first entry so the user always sees something
-  return best && bestScore >= MIN_SCORE ? best : entries[0]
-}
-
-// ── helpers ────────────────────────────────────────────────────────────────
-
-/**
- * Normalize text for matching: lowercase, remove punctuation, collapse spaces.
- * Keeps Cyrillic and Latin alphanumerics.
- */
-function normalizeText(text) {
-  if (!text) return ''
-  return text
-    .toLowerCase()
-    .replace(/[«»""''„"‹›]/g, ' ')
-    .replace(/[^а-яёa-z0-9\s]/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-/**
- * Score one entry against normalised task text.
- * Multi-word keyword phrases give more points (they are more specific).
- */
-function scoreEntry(entry, normalizedText) {
-  const keywords = entry.keywords || []
-  let score = 0
-
-  for (const kw of keywords) {
-    const kwNorm = kw.toLowerCase().trim()
-    if (!kwNorm) continue
-    if (normalizedText.includes(kwNorm)) {
-      // Weight: number of words in the keyword phrase
-      score += kwNorm.split(/\s+/).length
-    }
-  }
-
-  return score
+  return null
 }

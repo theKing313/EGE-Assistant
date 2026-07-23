@@ -1,9 +1,20 @@
 {
   "manifest_version": 3,
   "name": "SmartEGE",
-  "version": "1.1.0",
-  "permissions": ["storage", "activeTab"],
+  "version": "2.0.0",
   "description": "AI educational assistant for EGE/OGE students — instant hints and theory on every task",
+  "permissions": ["storage", "activeTab", "identity"],
+  "host_permissions": [
+    "*://reshu.ru/*",
+    "*://*.reshu.ru/*",
+    "*://sdamgia.ru/*",
+    "*://*.sdamgia.ru/*",
+    "*://fipi.ru/*",
+    "*://*.fipi.ru/*",
+    "https://*.replit.dev/*",
+    "https://*.repl.co/*",
+    "http://localhost:3001/*"
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -39,5 +50,9 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
+  },
+  "oauth2": {
+    "client_id": "REPLACE_WITH_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
   }
 }

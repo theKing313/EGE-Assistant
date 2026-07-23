@@ -1,0 +1,1 @@
+- [SmartEGE architecture](smartege-arch.md) — Chrome extension + Express backend; build outputs to dist/, backend on port 3001

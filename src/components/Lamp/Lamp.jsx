@@ -3,16 +3,16 @@ import Tooltip from '../Tooltip/Tooltip.jsx'
 import { findHint } from '../../services/knowledgeService.js'
 
 /**
- * Lamp — manages open/close state, outside-click, Escape, and loading.
- * Zero hint logic — all of that lives in hintService and Tooltip.
+ * Lamp — icon-only button. No label text.
+ * Click → load entry → open Tooltip with first hint already visible.
  */
 export default function Lamp({ taskText, taskNumber, subject }) {
-  const [open, setOpen]       = useState(false)
-  const [entry, setEntry]     = useState(null)
+  const [open,    setOpen]    = useState(false)
+  const [entry,   setEntry]   = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState(false)
-  const wrapperRef            = useRef(null)
-  const fetchedRef            = useRef(false)
+  const [error,   setError]   = useState(false)
+  const wrapperRef = useRef(null)
+  const fetchedRef = useRef(false)
 
   const loadEntry = async () => {
     if (fetchedRef.current || loading) return
@@ -24,7 +24,7 @@ export default function Lamp({ taskText, taskNumber, subject }) {
       setEntry(result)
     } catch {
       setError(true)
-      fetchedRef.current = false // allow retry
+      fetchedRef.current = false
     } finally {
       setLoading(false)
     }
@@ -35,7 +35,6 @@ export default function Lamp({ taskText, taskNumber, subject }) {
     setOpen((prev) => !prev)
   }
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return
     const handler = (e) => {
@@ -47,7 +46,6 @@ export default function Lamp({ taskText, taskNumber, subject }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  // Close on Escape
   useEffect(() => {
     if (!open) return
     const handler = (e) => { if (e.key === 'Escape') setOpen(false) }
@@ -62,7 +60,7 @@ export default function Lamp({ taskText, taskNumber, subject }) {
           'sege-lamp__btn',
           open    ? 'sege-lamp__btn--active'  : '',
           loading ? 'sege-lamp__btn--loading' : '',
-        ].join(' ')}
+        ].filter(Boolean).join(' ')}
         onClick={handleClick}
         title="SmartEGE — подсказка к заданию"
         aria-expanded={open}
@@ -72,9 +70,6 @@ export default function Lamp({ taskText, taskNumber, subject }) {
           ? <span className="sege-lamp__spinner" aria-hidden="true" />
           : <span className="sege-lamp__icon"   aria-hidden="true">💡</span>
         }
-        <span className="sege-lamp__label">
-          {loading ? 'Загрузка…' : 'Подсказка'}
-        </span>
       </button>
 
       {open && !error && (
@@ -89,9 +84,7 @@ export default function Lamp({ taskText, taskNumber, subject }) {
       {open && error && (
         <div className="sege-tooltip sege-error">
           <p>Не удалось загрузить подсказку.</p>
-          <button onClick={() => { setError(false); setOpen(false) }}>
-            Закрыть
-          </button>
+          <button onClick={() => { setError(false); setOpen(false) }}>Закрыть</button>
         </div>
       )}
     </div>

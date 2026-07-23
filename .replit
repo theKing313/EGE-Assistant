@@ -1,0 +1,40 @@
+modules = ["nodejs-20", "web", "postgresql-16"]
+
+[nix]
+channel = "stable-25_05"
+
+[agent]
+expertMode = true
+
+[[ports]]
+localPort = 3001
+externalPort = 80
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SmartEGE Backend"
+
+[[workflows.workflow]]
+name = "SmartEGE Backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run server"
+waitForPort = 3001
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[userenv]
+
+[userenv.shared]
+VITE_API_URL = "https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev:3001"
