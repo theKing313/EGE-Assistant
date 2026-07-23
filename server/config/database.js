@@ -6,6 +6,15 @@ import pg from 'pg'
 
 const { Pool } = pg
 
+if (!process.env.DATABASE_URL) {
+  console.error(
+    '\n[DB] ❌  DATABASE_URL is not set.\n' +
+    '    Local dev: copy .env.example → .env and fill in your Postgres connection string.\n' +
+    '    Replit:    add DATABASE_URL in Tools → Secrets (or use the built-in Database tool).\n'
+  )
+  process.exit(1)
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
