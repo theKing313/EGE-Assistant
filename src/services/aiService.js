@@ -7,8 +7,8 @@
  * This module is only called from knowledgeService when JSON returns no match.
  * It is NEVER called if a JSON entry was found (cost guarantee).
  */
-import { API_BASE_URL } from '../config.js'
-import { authFetch, isLoggedIn } from './authService.js'
+import { API_BASE_URL } from "../config.js";
+import { authFetch, isLoggedIn } from "./authService.js";
 
 /**
  * Request an AI hint from the backend.
@@ -17,27 +17,31 @@ import { authFetch, isLoggedIn } from './authService.js'
  * @returns {{ title, text, example, source } | { error, code }}
  */
 export async function getHint({ subject, taskText, level }) {
-  const loggedIn = await isLoggedIn()
+  const loggedIn = await isLoggedIn();
   if (!loggedIn) {
-    return { error: 'Not authenticated', code: 'NOT_AUTHENTICATED' }
+    return { error: "Not authenticated", code: "NOT_AUTHENTICATED" };
   }
 
   try {
     const res = await authFetch(`${API_BASE_URL}/api/ai/hint`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({ subject, taskText, level }),
-    })
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (!res.ok) {
-      return { error: data.error || 'AI error', code: data.code || 'AI_ERROR' }
+      return {
+        error: data.error || "AI error",
+        code: data.code || "AI_ERROR",
+        detail: data.detail || null,
+      };
     }
 
-    return data.hint // { title, text, example, source: 'ai'|'ai-cache' }
+    return data.hint; // { title, text, example, source: 'ai'|'ai-cache' }
   } catch (err) {
-    console.warn('[SmartEGE] aiService error:', err.message)
-    return { error: 'Network error', code: 'NETWORK_ERROR' }
+    console.warn("[SmartEGE] aiService error:", err.message);
+    return { error: "Network error", code: "NETWORK_ERROR" };
   }
 }
 
@@ -45,14 +49,14 @@ export async function getHint({ subject, taskText, level }) {
  * Get AI availability and today's quota.
  */
 export async function getStatus() {
-  const loggedIn = await isLoggedIn()
-  if (!loggedIn) return null
+  const loggedIn = await isLoggedIn();
+  if (!loggedIn) return null;
 
   try {
-    const res = await authFetch(`${API_BASE_URL}/api/ai/status`)
-    if (!res.ok) return null
-    return res.json()
+    const res = await authFetch(`${API_BASE_URL}/api/ai/status`);
+    if (!res.ok) return null;
+    return res.json();
   } catch {
-    return null
+    return null;
   }
 }

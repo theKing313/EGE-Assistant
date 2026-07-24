@@ -8,37 +8,37 @@
  *
  * AI is NEVER called when JSON already has a suitable answer.
  */
-import { findBestMatch } from '../utils/textMatcher.js'
-import * as aiService from './aiService.js'
+import { findBestMatch } from "../utils/textMatcher.js";
+import * as aiService from "./aiService.js";
 
-const cache = {}
+const cache = {};
 
 const SUBJECT_FILES = {
-  russian:   'knowledge/russian.json',
-  math:      'knowledge/math.json',
-  physics:   'knowledge/russian.json',   // fallback until physics.json exists
-  chemistry: 'knowledge/russian.json',
-  biology:   'knowledge/russian.json',
-  history:   'knowledge/russian.json',
-}
+  russian: "knowledge/russian.json",
+  math: "knowledge/math.json",
+  physics: "knowledge/russian.json", // fallback until physics.json exists
+  chemistry: "knowledge/russian.json",
+  biology: "knowledge/russian.json",
+  history: "knowledge/russian.json",
+};
 
-const MIN_SCORE = 1
+const MIN_SCORE = 1;
 
 export async function loadKnowledge(subject) {
-  if (cache[subject]) return cache[subject]
+  if (cache[subject]) return cache[subject];
 
-  const file = SUBJECT_FILES[subject] || SUBJECT_FILES.russian
-  const url = chrome.runtime.getURL(file)
+  const file = SUBJECT_FILES[subject] || SUBJECT_FILES.russian;
+  const url = chrome.runtime.getURL(file);
 
   try {
-    const res = await fetch(url)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    cache[subject] = data
-    return data
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    cache[subject] = data;
+    return data;
   } catch (err) {
-    console.warn(`[SmartEGE] Failed to load knowledge for "${subject}":`, err)
-    return []
+    console.warn(`[SmartEGE] Failed to load knowledge for "${subject}":`, err);
+    return [];
   }
 }
 
@@ -53,45 +53,85 @@ export async function loadKnowledge(subject) {
  */
 export async function findHint(subject, taskText, taskNumber = null) {
   // 1. Try local JSON first
-  const entries = await loadKnowledge(subject)
-  const match = findBestMatch(entries, taskText, taskNumber, MIN_SCORE)
+  const entries = await loadKnowledge(subject);
+  const match = findBestMatch(entries, taskText, taskNumber, MIN_SCORE);
 
   if (match) {
-    console.debug('[SmartEGE] JSON match:', match.title)
-    return { ...match, _source: 'json' }
+    console.debug("[SmartEGE] JSON match:", match.title);
+    return { ...match, _source: "json" };
   }
 
   // 2. No JSON match → ask AI (will hit backend cache first)
-  console.debug('[SmartEGE] No JSON match, trying AI fallback')
+  console.debug("[SmartEGE] No JSON match, trying AI fallback");
   try {
     const aiResult = await aiService.getHint({
       subject,
       taskText,
-      level: 'hint20', // backend returns a structured entry
-    })
+      level: "hint20", // backend returns a structured entry
+    });
 
     if (aiResult && !aiResult.error) {
       return {
         id: `ai_${Date.now()}`,
-        title: aiResult.title || 'Объяснение ИИ',
+        title: aiResult.title || "Объяснение ИИ",
         keywords: [],
         hint20: aiResult.text,
         hint50: aiResult.text,
         full: { rule: aiResult.text, example: aiResult.example || null },
-        _source: aiResult.source || 'ai',
+        _source: aiResult.source || "ai",
+      };
+    }
+
+    if (aiResult && aiResult.error) {
+      console.warn(
+        "[SmartEGE] AI returned error:",
+        aiResult.error,
+        aiResult.code || "",
+      );
+      if (entries.length > 0) {
+        return { ...entries[0], _source: "json-fallback" };
       }
+
+      const detailText = aiResult.detail ? ` — ${aiResult.detail}` : "";
+      const errorMessage = `${aiResult.error}${detailText}`;
+
+      return {
+        id: "ai_error",
+        title: "Ошибка AI",
+        keywords: [],
+        hint20: errorMessage,
+        hint50: errorMessage,
+        full: {
+          rule: errorMessage,
+          example: null,
+        },
+        _source: "error",
+      };
     }
 
     // AI not available or auth required — return first JSON entry as safe fallback
     if (entries.length > 0) {
-      return { ...entries[0], _source: 'json-fallback' }
+      return { ...entries[0], _source: "json-fallback" };
     }
   } catch (err) {
-    console.warn('[SmartEGE] AI fallback error:', err.message)
+    console.warn("[SmartEGE] AI fallback error:", err.message);
     if (entries.length > 0) {
-      return { ...entries[0], _source: 'json-fallback' }
+      return { ...entries[0], _source: "json-fallback" };
     }
   }
 
-  return null
+  return {
+    id: "no_hint",
+    title: "Подсказка недоступна",
+    keywords: [],
+    hint20:
+      "Подсказка недоступна. Проверьте, что вы вошли в систему и что backend имеет доступ к AI.",
+    hint50:
+      "Для получения подсказки нужны либо локальная база знаний, либо работающий AI. Сейчас оба варианта недоступны.",
+    full: {
+      rule: "Проверьте настройки сервера и авторизацию. В личной карточке должна быть активна подписка или OpenAI API ключ.",
+      example: null,
+    },
+    _source: "error",
+  };
 }
