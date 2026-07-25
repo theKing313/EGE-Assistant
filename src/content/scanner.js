@@ -74,8 +74,6 @@ export function scanForTasks() {
         taskNumber = match ? parseInt(match[0]) : null
       }
     }
-    if (taskNumber === null) taskNumber = index + 1
-
     // Extract task text
     let taskText = ''
     if (profile.taskText) {

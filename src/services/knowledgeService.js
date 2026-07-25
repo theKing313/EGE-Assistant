@@ -8,7 +8,7 @@
  *
  * AI is NEVER called when JSON already has a suitable answer.
  */
-import { findBestMatch } from "../utils/textMatcher.js";
+import { rankMatches } from "../utils/textMatcher.js";
 import * as aiService from "./aiService.js";
 
 const cache = {};
@@ -16,18 +16,23 @@ const cache = {};
 const SUBJECT_FILES = {
   russian: "knowledge/russian.json",
   math: "knowledge/math.json",
-  physics: "knowledge/russian.json", // fallback until physics.json exists
-  chemistry: "knowledge/russian.json",
-  biology: "knowledge/russian.json",
-  history: "knowledge/russian.json",
 };
 
-const MIN_SCORE = 1;
+const DEFAULT_MATCH_THRESHOLD = 1.5;
+const configuredThreshold = Number(import.meta.env.VITE_KNOWLEDGE_MATCH_THRESHOLD);
+export const MATCH_THRESHOLD = Number.isFinite(configuredThreshold) && configuredThreshold >= 0
+  ? configuredThreshold
+  : DEFAULT_MATCH_THRESHOLD;
 
 export async function loadKnowledge(subject) {
   if (cache[subject]) return cache[subject];
 
-  const file = SUBJECT_FILES[subject] || SUBJECT_FILES.russian;
+  const file = SUBJECT_FILES[subject];
+  if (!file) {
+    console.warn(`[SmartEGE] No local knowledge base for subject "${subject}"`);
+    cache[subject] = [];
+    return cache[subject];
+  }
   const url = chrome.runtime.getURL(file);
 
   try {
@@ -54,11 +59,21 @@ export async function loadKnowledge(subject) {
 export async function findHint(subject, taskText, taskNumber = null) {
   // 1. Try local JSON first
   const entries = await loadKnowledge(subject);
-  const match = findBestMatch(entries, taskText, taskNumber, MIN_SCORE);
+  const result = rankMatches(entries, taskText, taskNumber, MATCH_THRESHOLD);
 
-  if (match) {
-    console.debug("[SmartEGE] JSON match:", match.title);
-    return { ...match, _source: "json" };
+  console.debug("[SmartEGE] Knowledge match ranking:", {
+    subject,
+    taskNumber,
+    reason: result.reason,
+    selected: result.match?.title || "no_match",
+    score: result.score,
+    threshold: MATCH_THRESHOLD,
+    matchedKeywords: result.matchedKeywords,
+    top5: result.topMatches,
+  });
+
+  if (result.match) {
+    return { ...result.match, _source: "json", _match: result };
   }
 
   // 2. No JSON match → ask AI (will hit backend cache first)
@@ -88,50 +103,38 @@ export async function findHint(subject, taskText, taskNumber = null) {
         aiResult.error,
         aiResult.code || "",
       );
-      if (entries.length > 0) {
-        return { ...entries[0], _source: "json-fallback" };
-      }
-
       const detailText = aiResult.detail ? ` — ${aiResult.detail}` : "";
       const errorMessage = `${aiResult.error}${detailText}`;
 
       return {
-        id: "ai_error",
-        title: "Ошибка AI",
+        id: "no_match",
+        title: "Подходящая подсказка не найдена",
         keywords: [],
-        hint20: errorMessage,
-        hint50: errorMessage,
+        hint20: `Нет подходящей подсказки в базе знаний. AI недоступен: ${errorMessage}`,
+        hint50: `Нет подходящей подсказки в базе знаний. AI недоступен: ${errorMessage}`,
         full: {
-          rule: errorMessage,
+          rule: `Нет подходящей подсказки в базе знаний. AI недоступен: ${errorMessage}`,
           example: null,
         },
-        _source: "error",
+        _source: "no_match",
       };
-    }
-
-    // AI not available or auth required — return first JSON entry as safe fallback
-    if (entries.length > 0) {
-      return { ...entries[0], _source: "json-fallback" };
     }
   } catch (err) {
     console.warn("[SmartEGE] AI fallback error:", err.message);
-    if (entries.length > 0) {
-      return { ...entries[0], _source: "json-fallback" };
-    }
   }
 
   return {
-    id: "no_hint",
-    title: "Подсказка недоступна",
+    id: "no_match",
+    title: "Подходящая подсказка не найдена",
     keywords: [],
     hint20:
-      "Подсказка недоступна. Проверьте, что вы вошли в систему и что backend имеет доступ к AI.",
+      "В базе знаний нет записи, подходящей к этому заданию.",
     hint50:
-      "Для получения подсказки нужны либо локальная база знаний, либо работающий AI. Сейчас оба варианта недоступны.",
+      "Попробуйте уточнить условие задания или включить AI-подсказки.",
     full: {
-      rule: "Проверьте настройки сервера и авторизацию. В личной карточке должна быть активна подписка или OpenAI API ключ.",
+      rule: "Совпадение не достигло настроенного порога. Другая тема не подставляется, чтобы не показать нерелевантное объяснение.",
       example: null,
     },
-    _source: "error",
+    _source: "no_match",
   };
 }

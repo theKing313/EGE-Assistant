@@ -21,6 +21,7 @@ import aiRoutes from "./routes/ai.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
 import userRoutes from "./routes/users.js";
 import billingRoutes from "./routes/billing.js";
+import * as aiService from "./services/aiService.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -85,7 +86,8 @@ app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    aiConfigured: Boolean(process.env.OPENAI_API_KEY),
+    aiConfigured: aiService.isAvailable(),
+    ai: aiService.providerInfo(),
   });
 });
 
@@ -104,6 +106,6 @@ app.use((err, _req, res, _next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`[SmartEGE] Backend running on port ${PORT}`);
   console.log(
-    `[SmartEGE] AI configured: ${Boolean(process.env.OPENAI_API_KEY)}`,
+    `[SmartEGE] AI provider: ${JSON.stringify(aiService.providerInfo())}`,
   );
 });

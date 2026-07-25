@@ -34,3 +34,8 @@ The files still exist but are not imported anywhere.
 - Before touching auth: Google OAuth for Chrome extensions uses `chrome.identity.getAuthToken` (not redirect flow).
 - Before adding AI subjects: add JSON file to `public/knowledge/`, register in `SUBJECT_FILES` in `knowledgeService.js`.
 - Backend route changes need server workflow restart; extension changes need `npm run build` + Chrome reload.
+**AI provider boundary:** AI orchestration is provider-agnostic; select OpenRouter, OpenAI, DeepSeek, Mistral, or Gemini with AI_PROVIDER and the matching environment key.
+**Why:** provider availability and billing vary by region, so business logic must not depend on a vendor.
+
+**Knowledge matching safety:** exact task numbers win only when supplied by the page, otherwise normalized and stemmed keyword ranking must clear a configurable threshold; no first-entry fallback is allowed.
+**Why:** the Russian site exposed false positives where unrelated tasks received the first topic in the JSON file.
