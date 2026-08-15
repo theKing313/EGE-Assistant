@@ -19,14 +19,17 @@ const SUBJECT_FILES = {
 };
 
 const DEFAULT_MATCH_THRESHOLD = 1.5;
-const configuredThreshold = Number(import.meta.env.VITE_KNOWLEDGE_MATCH_THRESHOLD);
-export const MATCH_THRESHOLD = Number.isFinite(configuredThreshold) && configuredThreshold >= 0
-  ? configuredThreshold
-  : DEFAULT_MATCH_THRESHOLD;
+const configuredThreshold = Number(
+  import.meta.env.VITE_KNOWLEDGE_MATCH_THRESHOLD,
+);
+export const MATCH_THRESHOLD =
+  Number.isFinite(configuredThreshold) && configuredThreshold >= 0
+    ? configuredThreshold
+    : DEFAULT_MATCH_THRESHOLD;
 
 export async function loadKnowledge(subject) {
   if (cache[subject]) return cache[subject];
-
+  console.log(`[SmartEGE] Loading knowledge for subject "${subject}"`);
   const file = SUBJECT_FILES[subject];
   if (!file) {
     console.warn(`[SmartEGE] No local knowledge base for subject "${subject}"`);
@@ -56,28 +59,72 @@ export async function loadKnowledge(subject) {
  * @param {string}      taskText
  * @param {number|null} taskNumber
  */
-export async function findHint(subject, taskText, taskNumber = null) {
+export async function findHint(
+  subject,
+  taskText,
+  taskNumber = null,
+  extraTexts = [],
+) {
   // 1. Try local JSON first
   const entries = await loadKnowledge(subject);
-  const result = rankMatches(entries, taskText, taskNumber, MATCH_THRESHOLD);
 
-  console.debug("[SmartEGE] Knowledge match ranking:", {
-    subject,
+  const combinedText = [
+    taskText,
+    ...(Array.isArray(extraTexts) ? extraTexts : []),
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  // console.debug("[SmartEGE] Text received from page:", {
+  //   subject,
+  //   taskNumber,
+  //   taskText,
+  //   extraTexts,
+  //   combinedText,
+  //   entries,
+  //   MATCH_THRESHOLD,
+  // });
+
+  console.log("DEBUG BEFORE rankMatches");
+
+  const result = rankMatches(
+    entries,
+    combinedText,
+    extraTexts,
     taskNumber,
-    reason: result.reason,
-    selected: result.match?.title || "no_match",
-    score: result.score,
-    threshold: MATCH_THRESHOLD,
-    matchedKeywords: result.matchedKeywords,
-    top5: result.topMatches,
-  });
+    MATCH_THRESHOLD,
+  );
 
-  if (result.match) {
-    return { ...result.match, _source: "json", _match: result };
+  console.log("DEBUG AFTER rankMatches");
+  console.log("DEBUG result:", result);
+  // if (result.match) {
+  //   return { ...result.match, _source: "json", _match: result };
+  // }
+  // console.debug("[SmartEGE] Knowledge match ranking:", {
+  //   subject,
+  //   taskNumber,
+  //   reason: result.reason,
+  //   selected: result.match?.title || "no_match",
+  //   score: result.score,
+  //   threshold: MATCH_THRESHOLD,
+  //   matchedKeywords: result.matchedKeywords,
+  //   top5: result.topMatches,
+  // });
+
+  if (result?.match) {
+    console.log("DEBUG MATCH:", result.match);
+
+    return {
+      ...result.match,
+      _source: "json",
+      _match: result,
+    };
   }
 
+  console.log("DEBUG NO MATCH");
+
   // 2. No JSON match → ask AI (will hit backend cache first)
-  console.debug("[SmartEGE] No JSON match, trying AI fallback");
+  console.log("[SmartEGE] No JSON match, trying AI fallback");
   try {
     const aiResult = await aiService.getHint({
       subject,
@@ -127,10 +174,8 @@ export async function findHint(subject, taskText, taskNumber = null) {
     id: "no_match",
     title: "Подходящая подсказка не найдена",
     keywords: [],
-    hint20:
-      "В базе знаний нет записи, подходящей к этому заданию.",
-    hint50:
-      "Попробуйте уточнить условие задания или включить AI-подсказки.",
+    hint20: "В базе знаний нет записи, подходящей к этому заданию.",
+    hint50: "Попробуйте уточнить условие задания или включить AI-подсказки.",
     full: {
       rule: "Совпадение не достигло настроенного порога. Другая тема не подставляется, чтобы не показать нерелевантное объяснение.",
       example: null,

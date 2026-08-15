@@ -6,7 +6,12 @@ import { findHint } from "../../services/knowledgeService.js";
  * Lamp — icon-only button. No label text.
  * Click → load entry → open Tooltip with first hint already visible.
  */
-export default function Lamp({ taskText, taskNumber, subject }) {
+export default function Lamp({
+  taskText,
+  taskNumber,
+  subject,
+  extraTexts = [],
+}) {
   const [open, setOpen] = useState(false);
   const [entry, setEntry] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,7 +25,8 @@ export default function Lamp({ taskText, taskNumber, subject }) {
     setLoading(true);
     setError(false);
     try {
-      const result = await findHint(subject, taskText, taskNumber);
+      const result = await findHint(subject, taskText, taskNumber, extraTexts);
+      console.log("[SmartEGE] Lamp loadEntry result:", result);
       if (!result) {
         setError(true);
         fetchedRef.current = false;
