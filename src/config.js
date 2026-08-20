@@ -9,6 +9,6 @@
  */
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  'http://localhost:3001'
+  'https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev'
 
 export const API_TIMEOUT_MS = 12_000
