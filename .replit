@@ -37,4 +37,8 @@ outputType = "console"
 [userenv]
 
 [userenv.shared]
-VITE_API_URL = "https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev:3001"
+VITE_API_URL = "https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev"
+AI_PROVIDER = "gigachat"
+GIGACHAT_CLIENT_ID = "01a01ec4-aeac-7941-a8ba-b2a60c315275"
+GIGACHAT_MODEL = "GigaChat"
+GIGACHAT_SCOPE = "GIGACHAT_API_PERS"
