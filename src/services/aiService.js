@@ -35,6 +35,12 @@ export async function getHint({ subject, taskText, level }) {
         error: data.error || "AI error",
         code: data.code || "AI_ERROR",
         detail: data.detail || null,
+        provider: data.provider || null,
+        phase: data.phase || null,
+        statusCode: data.statusCode || null,
+        attempts: data.attempts || null,
+        requestId: data.requestId || null,
+        upstream: data.upstream || null,
       };
     }
 

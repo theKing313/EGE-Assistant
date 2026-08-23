@@ -1,8 +1,9 @@
-import OpenRouterProvider from './OpenRouterProvider.js'
-import OpenAIProvider from './OpenAIProvider.js'
-import DeepSeekProvider from './DeepSeekProvider.js'
-import MistralProvider from './MistralProvider.js'
-import GeminiProvider from './GeminiProvider.js'
+import OpenRouterProvider from "./OpenRouterProvider.js";
+import OpenAIProvider from "./OpenAIProvider.js";
+import DeepSeekProvider from "./DeepSeekProvider.js";
+import MistralProvider from "./MistralProvider.js";
+import GeminiProvider from "./GeminiProvider.js";
+import GigaChatProvider from "./GigaChatProvider.js";
 
 const PROVIDERS = {
   openrouter: OpenRouterProvider,
@@ -10,21 +11,26 @@ const PROVIDERS = {
   deepseek: DeepSeekProvider,
   mistral: MistralProvider,
   gemini: GeminiProvider,
-}
+  gigachat: GigaChatProvider,
+};
 
 export function getAIProvider() {
-  const requested = (process.env.AI_PROVIDER || 'openrouter').trim().toLowerCase()
-  const Provider = PROVIDERS[requested]
+  const requested = (process.env.AI_PROVIDER || "openrouter")
+    .trim()
+    .toLowerCase();
+  const Provider = PROVIDERS[requested];
   if (!Provider) {
-    throw new Error(`Unsupported AI_PROVIDER "${requested}". Supported: ${Object.keys(PROVIDERS).join(', ')}`)
+    throw new Error(
+      `Unsupported AI_PROVIDER "${requested}". Supported: ${Object.keys(PROVIDERS).join(", ")}`,
+    );
   }
-  return new Provider()
+  return new Provider();
 }
 
 export function getProviderName() {
-  return (process.env.AI_PROVIDER || 'openrouter').trim().toLowerCase()
+  return (process.env.AI_PROVIDER || "openrouter").trim().toLowerCase();
 }
 
 export function listProviders() {
-  return Object.keys(PROVIDERS)
+  return Object.keys(PROVIDERS);
 }

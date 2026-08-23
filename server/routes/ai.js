@@ -60,7 +60,7 @@ router.post("/hint", requireAuth, async (req, res) => {
 
   // Get hint (cache-first, then API)
   try {
-    const hint = await aiService.getHint({ subject, taskText, level });
+    const hint = await aiService.getHint({ subject, taskText, level }); //level
 
     if (hint.available === false) {
       return res.status(503).json({
@@ -77,8 +77,25 @@ router.post("/hint", requireAuth, async (req, res) => {
 
     res.json({ hint, usage });
   } catch (err) {
-    console.error("[AI Route] Error:", err.message);
-    res.status(502).json({ error: "AI request failed", detail: err.message });
+    console.error("[AI Route] Error:", {
+      message: err.message,
+      provider: err.provider || null,
+      phase: err.phase || null,
+      statusCode: err.statusCode || null,
+      attempts: err.attempts || null,
+      requestId: err.requestId || null,
+      responseBody: err.responseBody || null,
+    });
+    res.status(502).json({
+      error: "AI request failed",
+      detail: err.message,
+      provider: err.provider || null,
+      phase: err.phase || null,
+      statusCode: err.statusCode || null,
+      attempts: err.attempts || null,
+      requestId: err.requestId || null,
+      upstream: err.responseBody || null,
+    });
   }
 });
 

@@ -75,15 +75,15 @@ export async function findHint(
     .filter(Boolean)
     .join("\n");
 
-  // console.debug("[SmartEGE] Text received from page:", {
-  //   subject,
-  //   taskNumber,
-  //   taskText,
-  //   extraTexts,
-  //   combinedText,
-  //   entries,
-  //   MATCH_THRESHOLD,
-  // });
+  console.debug("[SmartEGE] Text received from page:", {
+    subject,
+    taskNumber,
+    taskText,
+    extraTexts,
+    combinedText,
+    entries,
+    MATCH_THRESHOLD,
+  });
 
   console.log("DEBUG BEFORE rankMatches");
 
@@ -150,7 +150,18 @@ export async function findHint(
         aiResult.error,
         aiResult.code || "",
       );
-      const detailText = aiResult.detail ? ` — ${aiResult.detail}` : "";
+      const diagnosticDetails = [
+        aiResult.detail,
+        aiResult.provider && `provider=${aiResult.provider}`,
+        aiResult.phase && `phase=${aiResult.phase}`,
+        aiResult.statusCode && `status=${aiResult.statusCode}`,
+        aiResult.attempts && `attempts=${aiResult.attempts}`,
+        aiResult.requestId && `requestId=${aiResult.requestId}`,
+        aiResult.upstream && `upstream=${aiResult.upstream}`,
+      ].filter(Boolean);
+      const detailText = diagnosticDetails.length
+        ? ` — ${diagnosticDetails.join("; ")}`
+        : "";
       const errorMessage = `${aiResult.error}${detailText}`;
 
       return {
