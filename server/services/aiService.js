@@ -37,7 +37,7 @@ export function providerInfo() {
 }
 
 function makeCacheKey(subject, taskText, level, provider) {
-  const raw = `${provider.name}:${provider.model}||${subject}||${taskText.trim().toLowerCase().slice(0, 300)}||${level}`;
+  const raw = `hint-schema-v6-free-hint-premium-answer||${provider.name}:${provider.model}||${subject}||${taskText.trim().toLowerCase().slice(0, 300)}||${level}`;
   return crypto.createHash("sha256").update(raw).digest("hex");
 }
 

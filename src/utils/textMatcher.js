@@ -129,9 +129,7 @@ export function normalizeText(text) {
 function entryTaskNumbers(entry) {
   const values = [
     ...(Array.isArray(entry?.taskNumbers) ? entry.taskNumbers : []),
-
     ...(Array.isArray(entry?.hintFor) ? entry.hintFor : []),
-
     entry?.taskNumber,
   ];
 
@@ -209,8 +207,25 @@ function calculateKeywordMatch(normalizedText, entry, keyword) {
     };
   }
 
-  // Exact phrase
-  if (normalizedText.includes(normalizedKeywordText)) {
+  const keywordTokens = normalizedKeywordText.split(" ");
+
+  // -------------------------------------------------------
+  // Multi-word keywords
+  //
+  // IMPORTANT:
+  // A phrase such as "куб суммы" must match as a complete
+  // phrase. A single shared word such as "куб" is NOT enough.
+  // -------------------------------------------------------
+
+  if (keywordTokens.length > 1) {
+    if (!normalizedText.includes(normalizedKeywordText)) {
+      return {
+        matched: false,
+        score: 0,
+        type: "phrase",
+      };
+    }
+
     return {
       matched: true,
       score: getKeywordWeight(entry, keyword),
@@ -218,28 +233,26 @@ function calculateKeywordMatch(normalizedText, entry, keyword) {
     };
   }
 
-  // Token matching
+  // -------------------------------------------------------
+  // Single-word keyword
+  // -------------------------------------------------------
+
   const textTokens = new Set(normalizedText.split(" "));
 
-  const keywordTokens = normalizedKeywordText.split(" ");
+  const token = keywordTokens[0];
 
-  const matchedTokens = keywordTokens.filter((token) => textTokens.has(token));
-
-  if (matchedTokens.length === 0) {
+  if (!textTokens.has(token)) {
     return {
       matched: false,
       score: 0,
+      type: "token",
     };
   }
 
-  const ratio = matchedTokens.length / keywordTokens.length;
-
-  const baseWeight = getKeywordWeight(entry, keyword);
-
   return {
     matched: true,
-    score: Number((baseWeight * ratio * 0.7).toFixed(3)),
-    type: "tokens",
+    score: getKeywordWeight(entry, keyword),
+    type: "token",
   };
 }
 
@@ -250,9 +263,7 @@ function calculateKeywordMatch(normalizedText, entry, keyword) {
 function getAllPatterns(entry) {
   return [
     ...(Array.isArray(entry?.keywords) ? entry.keywords : []),
-
     ...(Array.isArray(entry?.aliases) ? entry.aliases : []),
-
     ...(Array.isArray(entry?.patterns) ? entry.patterns : []),
   ].filter(Boolean);
 }
@@ -359,13 +370,9 @@ export function scoreMatch(entry, taskText) {
 
   return {
     score: Number(Math.max(score, 0).toFixed(3)),
-
     matchedKeywords,
-
     negativeMatches,
-
     requiredMatched,
-
     anyOfMatched,
   };
 }
@@ -442,6 +449,7 @@ export function rankMatches(
     entriesCount: Array.isArray(entries) ? entries.length : 0,
 
     taskText,
+
     extraTexts: resolvedExtraTexts,
 
     taskNumber: resolvedTaskNumber,
@@ -564,9 +572,11 @@ export function rankMatches(
       topMatches: ranked.slice(0, 5).map(toPublicMatch),
     };
   }
+
   // -------------------------------------------------------
   // FINAL RESULT
   // -------------------------------------------------------
+
   return {
     match: winner.entry,
     score: winner.score,

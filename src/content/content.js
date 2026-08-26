@@ -16,8 +16,13 @@ import lampCss from "../components/Lamp/Lamp.css?inline";
 import tooltipCss from "../components/Tooltip/Tooltip.css?inline";
 import hintContentCss from "../components/HintContent/HintContent.css?inline";
 import authModalCss from "../components/AuthModal/AuthModal.css?inline";
+import premiumModalCss from "../components/PremiumModal/PremiumModal.css?inline";
 
-injectStyles([lampCss, tooltipCss, hintContentCss, authModalCss].join("\n"));
+injectStyles(
+  [lampCss, tooltipCss, hintContentCss, authModalCss, premiumModalCss].join(
+    "\n",
+  ),
+);
 
 // Track mounted React roots — never double-mount the same task element
 const mountedRoots = new WeakMap();

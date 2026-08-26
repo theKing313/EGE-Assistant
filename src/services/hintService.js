@@ -72,9 +72,15 @@ export function getContent(entry, levelId) {
         isAI,
       };
     case "full":
+      const fullText = [entry.full?.rule, entry.full?.formulas]
+        .concat(
+          entry.full?.answer ? [`Итоговый ответ: ${entry.full.answer}`] : [],
+        )
+        .filter(Boolean)
+        .join("\n\n");
       return {
         title: entry.title,
-        text: entry.full?.rule || entry.hint50 || "Объяснение недоступно.",
+        text: fullText || entry.hint50 || "Объяснение недоступно.",
         example: entry.full?.example || null,
         levelMeta,
         isAI,

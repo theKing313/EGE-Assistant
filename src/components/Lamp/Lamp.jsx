@@ -93,8 +93,9 @@ export default function Lamp({
       {open && entry && (
         <Tooltip
           entry={entry}
-          subject={subject}
+          taskText={taskText}
           taskNumber={taskNumber}
+          subject={subject}
           onClose={() => setOpen(false)}
         />
       )}

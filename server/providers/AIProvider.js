@@ -19,38 +19,50 @@ export class AIProvider {
   }
 }
 
-export const SYSTEM_PROMPT = `Ты — умный репетитор для подготовки к ЕГЭ и ОГЭ.
+export const SYSTEM_PROMPT = `
+Ты — умный репетитор для подготовки к ЕГЭ и ОГЭ.
 
 Отвечай только на русском языке.
 
-Проанализируй переданное задание и подготовь сразу ТРИ уровня подсказки.
+Твоя задача — объяснить правило или решить задачу в зависимости от режима.
 
-ВАЖНО:
-- hint20 — правило только, не раскрывай способ решения полностью.
-- hint50 — объясни идею и нужное правило/формулу, но не раскрывай всё решение.
-- full — полное объяснение решения с правилом, последовательностью действий и итоговым ответом. И также циферки ответа правильный напиши
+Правила:
 
-Верни ТОЛЬКО валидный JSON.
+Для режима HINT порядок ответа обязателен:
+1. Сначала назови и объясни основное правило темы.
+2. Затем кратко напиши, как применять правило к подобным словам, выражениям или предложениям.
+3. В конце добавь один короткий похожий пример с объяснением правила.
 
-Структура ответа:
+Не пересказывай условие задания и не копируй его варианты в ответ.
+Не подменяй правило общей фразой вроде «определите нужную букву».
+
+В режиме HINT не указывай правильный ответ, номера вариантов, номера запятых или итоговые вычисления исходного задания.
+
+В режиме FULL можно дать короткое пошаговое решение и один итоговый ответ.
+
+Если это задание с несколькими вариантами, объясни, по какому правилу проверять варианты, но не называй правильные номера.
+
+Для математических задач:
+- проверяй вычисления;
+- проверяй используемые формулы;
+- не делай необоснованных геометрических предположений.
+
+Для русского языка:
+- если требуется выбрать варианты, анализируй каждый вариант отдельно;
+- различай букву, звук, часть речи, написание и другие формулировки условия.
+
+Верни только валидный JSON:
 
 {
-  "hint20": "string",
-  "hint50": "string",
-  "full": {
-    "rule": "string",
-    "solution": "string",
-    "answer": "string",
-    "answerNnumbers" : "string", 
-    "example": "string"
-  }
+  "title": "string",
+  "text": "string",
+  "example": "string|null",
+  "answer": "string|null"
 }
 
-Не используй markdown.
-Не оборачивай JSON в \`\`\`.
-Все двойные кавычки внутри строк должны быть корректно экранированы.
-Не добавляй никакого текста до или после JSON.`;
-
+В режиме HINT поле answer должно быть null.
+В режиме FULL поле answer должно содержать только один итоговый ответ, без списка альтернатив.
+`;
 // `Ты — умный репетитор для подготовки к ЕГЭ/ОГЭ.
 // Отвечаешь только на русском языке.
 // Даёшь подсказки разного уровня: намёк, идея или полное объяснение.
@@ -69,22 +81,26 @@ export const SYSTEM_PROMPT = `Ты — умный репетитор для по
 
 // Ответь в JSON: { "title": "...", "text": "...", "example": "..." }`;
 // }
-export function buildPrompt(subject, taskText) {
+export function buildPrompt(subject, taskText, level) {
+  const isFull = level === "full";
+
   return `Предмет: ${subject}
 
 Задание:
 ${String(taskText || "").slice(0, 1500)}
 
-Подготовь сразу три уровня подсказки:
-1. hint20
-2. hint50
-3. full
+Режим: ${isFull ? "FULL" : "HINT"}
 
-Для full обязательно укажи:
-- правило или формулу;
-- пошаговое решение;
-- итоговый ответ;
-- короткий похожий пример.`;
+${
+  isFull
+    ? "Реши исходное задание кратко: назови правило, покажи ключевые шаги и в конце укажи один итоговый ответ. Не копируй условие целиком."
+    : "Дай краткий конспект: сначала основное правило, затем способ применения и один похожий пример. Не решай исходное задание, не указывай его ответ, номера вариантов или номера запятых. Не копируй условие и варианты."
+}
+
+Начни поле text с основного правила.
+Ограничь text 4-8 короткими предложениями.
+
+Верни только JSON.`;
 }
 export async function postJson(url, options, timeoutMs) {
   const controller = new AbortController();
@@ -121,21 +137,18 @@ export function parseChatCompletion(data, providerName) {
 
   // 2. Сначала пробуем обычный JSON
   try {
-    const parsed = JSON.parse(cleaned);
-
-    return {
-      title: parsed.title || "Объяснение ИИ",
-      text: parsed.text || "Не удалось получить объяснение.",
-      example: parsed.example || null,
-    };
+    return normalizeHintResponse(JSON.parse(cleaned));
   } catch (jsonError) {
-    console.warn(
-      `[AI] ${providerName} returned non-JSON or malformed JSON. Using text fallback.`,
-      {
-        parseError: jsonError.message,
-        preview: content.slice(0, 500),
-      },
-    );
+    try {
+      return normalizeHintResponse(
+        JSON.parse(escapeControlCharacters(cleaned)),
+      );
+    } catch {
+      console.warn(
+        `[AI] ${providerName} returned non-JSON or malformed JSON. Using text fallback.`,
+        { parseError: jsonError.message, preview: content.slice(0, 500) },
+      );
+    }
   }
 
   // 3. Fallback: считаем ответ обычным текстом
@@ -144,4 +157,63 @@ export function parseChatCompletion(data, providerName) {
     text: content,
     example: null,
   };
+}
+
+function normalizeHintResponse(parsed) {
+  if (
+    parsed &&
+    ("hint20" in parsed || "hint50" in parsed || "full" in parsed)
+  ) {
+    return {
+      title: parsed.title || "Объяснение ИИ",
+      hint20: parsed.hint20 || "Подсказка недоступна.",
+      hint50: parsed.hint50 || parsed.hint20 || "Подсказка недоступна.",
+      full: {
+        rule: parsed.full?.rule || "Объяснение недоступно.",
+        formulas: parsed.full?.formulas || "",
+        example: parsed.full?.example || null,
+      },
+    };
+  }
+
+  return {
+    title: parsed?.title || "Объяснение ИИ",
+    text: parsed?.text || "Не удалось получить объяснение.",
+    example: parsed?.example || null,
+    answer: parsed?.answer || null,
+  };
+}
+
+function escapeControlCharacters(value) {
+  let result = "";
+  let insideString = false;
+  let escaped = false;
+
+  for (const character of value) {
+    if (escaped) {
+      result += character;
+      escaped = false;
+      continue;
+    }
+    if (character === "\\") {
+      result += character;
+      escaped = true;
+      continue;
+    }
+    if (character === '"') {
+      result += character;
+      insideString = !insideString;
+      continue;
+    }
+    if (insideString) {
+      if (character === "\n") result += "\\n";
+      else if (character === "\r") result += "\\r";
+      else if (character === "\t") result += "\\t";
+      else result += character;
+    } else {
+      result += character;
+    }
+  }
+
+  return result;
 }

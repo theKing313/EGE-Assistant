@@ -64,6 +64,7 @@ export async function findHint(
   taskText,
   taskNumber = null,
   extraTexts = [],
+  aiLevel = "hint",
 ) {
   // 1. Try local JSON first
   const entries = await loadKnowledge(subject);
@@ -129,7 +130,7 @@ export async function findHint(
     const aiResult = await aiService.getHint({
       subject,
       taskText,
-      level: "hint20", // backend returns a structured entry
+      level: aiLevel,
     });
 
     if (aiResult && !aiResult.error) {
@@ -137,9 +138,13 @@ export async function findHint(
         id: `ai_${Date.now()}`,
         title: aiResult.title || "Объяснение ИИ",
         keywords: [],
-        hint20: aiResult.text,
-        hint50: aiResult.text,
-        full: { rule: aiResult.text, example: aiResult.example || null },
+        hint20: aiResult.hint20 || aiResult.text,
+        hint50: aiResult.hint50 || aiResult.hint20 || aiResult.text,
+        full: aiResult.full || {
+          rule: aiResult.text,
+          answer: aiResult.answer || null,
+          example: aiResult.example || null,
+        },
         _source: aiResult.source || "ai",
       };
     }
