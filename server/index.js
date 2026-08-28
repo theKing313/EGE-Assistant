@@ -7,6 +7,7 @@
  *   /api/subscriptions — subscription status and feature flags
  *   /api/users         — user profile and usage history
  *   /api/billing       — billing skeleton (Stripe-ready)
+ *   /api/study         — premium study history, plan, and statistics
  *
  * Security: helmet, CORS restricted to extension origin + Replit domain.
  */
@@ -21,6 +22,7 @@ import aiRoutes from "./routes/ai.js";
 import subscriptionRoutes from "./routes/subscriptions.js";
 import userRoutes from "./routes/users.js";
 import billingRoutes from "./routes/billing.js";
+import studyRoutes from "./routes/study.js";
 import * as aiService from "./services/aiService.js";
 
 const app = express();
@@ -62,6 +64,13 @@ app.use(
 // ── Body parsing ─────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10kb" }));
 
+app.use("/premium", express.static("public/premium"));
+app.use("/offer", express.static("public/premium/offer"));
+app.use("/terms", express.static("public/premium/terms"));
+app.use("/privacy", express.static("public/premium/privacy"));
+app.use("/requisites", express.static("public/premium/requisites"));
+app.use("/contacts", express.static("public/premium/contacts"));
+
 // ── Global rate limit ────────────────────────────────────────────────────────
 app.use(
   "/api/",
@@ -80,6 +89,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/billing", billingRoutes);
+app.use("/api/study", studyRoutes);
 
 // ── Health ───────────────────────────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {

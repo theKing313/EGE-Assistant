@@ -1,12 +1,12 @@
-import React from 'react'
+import React from "react";
 
 /**
  * HintContent — displays hint text, example, and AI badge.
  * Props: content { title, text, example, levelMeta, isAI }
  */
 export default function HintContent({ content }) {
-  if (!content) return null
-  const { title, text, example, levelMeta, isAI } = content
+  if (!content) return null;
+  const { title, text, example, levelMeta, isAI } = content;
 
   return (
     <div className="sege-content">
@@ -35,13 +35,14 @@ export default function HintContent({ content }) {
       {/* Hint text */}
       <p className="sege-content__text">{text}</p>
 
-      {/* Example */}
       {example && (
         <div className="sege-content__example">
-          <span className="sege-content__example-label">✏️ Пример</span>
+          <span className="sege-content__example-label">
+            ✏️ Разбор этого задания
+          </span>
           <p className="sege-content__example-text">{example}</p>
         </div>
       )}
     </div>
-  )
+  );
 }

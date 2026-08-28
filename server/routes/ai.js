@@ -26,27 +26,17 @@ router.post("/hint", requireAuth, async (req, res) => {
       .json({ error: "subject, taskText, and level are required" });
   }
 
-  const isDev = process.env.NODE_ENV !== "production";
-
   // Gate: check subscription allows AI access
   const sub = await subscriptionService.getStatus(userId);
   if (!sub.features.aiAccess) {
-    if (!isDev) {
-      return res.status(403).json({
-        error: "AI access requires Premium",
-        code: "PREMIUM_REQUIRED",
-      });
-    }
-    console.warn(
-      "[AI Route] Dev mode: bypassing premium gate for user",
-      userId,
-    );
+    return res.status(403).json({
+      error: "AI access requires Premium",
+      code: "PREMIUM_REQUIRED",
+    });
   }
 
   // Gate: check daily limit
-  const limitInfo = isDev
-    ? { allowed: true, used: 0, limit: null, plan: "development" }
-    : await usageService.checkLimit(userId);
+  const limitInfo = await usageService.checkLimit(userId);
 
   if (!limitInfo.allowed) {
     return res.status(429).json({

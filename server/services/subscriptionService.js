@@ -8,6 +8,7 @@
  * All feature flags come from the DB — nothing is hardcoded in the client.
  */
 import * as subscriptionRepository from '../repositories/subscriptionRepository.js'
+import { getBillingConfig } from '../config/billing.js'
 
 const FEATURES = {
   free: {
@@ -15,12 +16,16 @@ const FEATURES = {
     fullExplanations: false,
     dailyHintLimit: 50,
     aiLimitPerDay: 20,
+    studyPlanning: false,
+    progressTracking: false,
   },
   premium: {
     aiAccess: true,
     fullExplanations: true,
     dailyHintLimit: null, // unlimited
     aiLimitPerDay: 300,
+    studyPlanning: true,
+    progressTracking: true,
   },
 }
 
@@ -31,12 +36,15 @@ export async function getStatus(userId) {
   const effectivePlan = (isActive && !isExpired) ? sub.plan : 'free'
   const features = FEATURES[effectivePlan] || FEATURES.free
 
+  const pricing = getBillingConfig()
+
   return {
     plan: effectivePlan,
     status: sub.status,
     expiresAt: sub.expires_at,
     features,
     aiLimitPerDay: sub.ai_limit_per_day ?? features.aiLimitPerDay,
+    pricing,
   }
 }
 

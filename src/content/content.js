@@ -36,7 +36,13 @@ function mountLamp(task) {
 
   const root = ReactDOM.createRoot(mount);
   root.render(
-    React.createElement(Lamp, { taskText, taskNumber, subject, extraTexts }),
+    React.createElement(Lamp, {
+      taskText,
+      taskNumber,
+      taskId: task.taskId,
+      subject,
+      extraTexts,
+    }),
   );
   mountedRoots.set(element, root);
 }

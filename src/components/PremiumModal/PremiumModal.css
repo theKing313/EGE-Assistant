@@ -120,6 +120,16 @@
   color: #94a3b8;
   font-size: 11px;
 }
+.sege-premium-modal__legal {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.sege-premium-modal__legal a {
+  color: #0f766e;
+  text-decoration: underline;
+}
 
 @keyframes sege-premium-fade-in {
   from {

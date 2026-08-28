@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tooltip from "../Tooltip/Tooltip.jsx";
 import { findHint } from "../../services/knowledgeService.js";
+import * as studyService from "../../services/studyService.js";
 
 /**
  * Lamp — icon-only button. No label text.
  * Click → load entry → open Tooltip with first hint already visible.
+ * For Premium users, opening a task counts as solving it in the study plan.
  */
 export default function Lamp({
   taskText,
   taskNumber,
+  taskId,
   subject,
   extraTexts = [],
 }) {
@@ -19,8 +22,11 @@ export default function Lamp({
   const wrapperRef = useRef(null);
   const fetchedRef = useRef(false);
 
+  const task = { taskText, taskNumber, taskId, subject };
+
   const loadEntry = async () => {
-    if (fetchedRef.current || loading) return;
+    if (entry) return entry;
+    if (fetchedRef.current && loading) return null;
     fetchedRef.current = true;
     setLoading(true);
     setError(false);
@@ -30,19 +36,32 @@ export default function Lamp({
       if (!result) {
         setError(true);
         fetchedRef.current = false;
-        return;
+        return null;
       }
       setEntry(result);
+      return result;
     } catch {
       setError(true);
       fetchedRef.current = false;
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
   const handleClick = async () => {
-    if (!open) await loadEntry();
+    if (!open) {
+      const result = await loadEntry();
+      const hint = result || entry;
+      studyService
+        .record("complete", task, {
+          topic: hint?.title,
+          hintLevel: "hint50",
+          hintSource: hint?._source?.startsWith("ai") ? "ai" : "json",
+          aiUsed: Boolean(hint?._source?.startsWith("ai")),
+        })
+        .catch(() => {});
+    }
     setOpen((prev) => !prev);
   };
 
@@ -95,6 +114,7 @@ export default function Lamp({
           entry={entry}
           taskText={taskText}
           taskNumber={taskNumber}
+          taskId={taskId}
           subject={subject}
           onClose={() => setOpen(false)}
         />

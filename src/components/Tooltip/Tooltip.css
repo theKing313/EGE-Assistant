@@ -170,3 +170,46 @@
 .sege-tooltip__level-btn--active .sege-tooltip__level-label {
   color: var(--active-color, #2563eb);
 }
+
+.sege-tooltip__study {
+  padding: 0 14px 12px;
+}
+
+.sege-tooltip__study-note {
+  margin: 0 0 8px;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.sege-tooltip__study-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.sege-tooltip__study-btn {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.sege-tooltip__study-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.sege-tooltip__study-btn--done {
+  border: 1.5px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.sege-tooltip__study-btn--later {
+  border: 1.5px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}

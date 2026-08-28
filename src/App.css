@@ -313,6 +313,184 @@
   margin-top: 10px;
 }
 
+.premium-gate {
+  background: #fffbeb;
+}
+.premium-gate__kicker {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #92400e;
+  margin-bottom: 6px;
+}
+.premium-gate__title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 6px;
+}
+.premium-gate__text {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.premium-gate__btn {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: #111827;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.today-card {
+  padding: 12px;
+  border: 1px solid #fde68a;
+  border-radius: 14px;
+  background: #fffbeb;
+  margin-bottom: 12px;
+}
+.today-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #92400e;
+}
+.today-card__score {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 2px 0 8px;
+}
+.plan-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: #fef3c7;
+  overflow: hidden;
+}
+.plan-bar__fill {
+  height: 100%;
+  background: #f59e0b;
+}
+.today-card__streak {
+  margin: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.today-card__continue {
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: #111827;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.plan-counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.plan-counts div {
+  padding: 8px 6px;
+  border: 1px solid #f3f4f6;
+  border-radius: 10px;
+  text-align: center;
+}
+.plan-counts strong {
+  display: block;
+  font-size: 16px;
+}
+.plan-counts span {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.review-list, .reco-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.review-list li, .reco-list li {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.dashboard-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dashboard-links button, .back-link {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+}
+.back-link {
+  margin-bottom: 10px;
+}
+
+.stats-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.stats-hero__label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.stats-hero__value {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.hard-topic {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.hard-topic strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.history-group {
+  margin-bottom: 12px;
+}
+.history-group__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
 /* ── History section ── */
 .history-empty {
   font-size: 13px;

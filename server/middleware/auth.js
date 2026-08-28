@@ -1,38 +1,48 @@
 /**
- * auth.js — JWT verification middleware.
- * Attach to any route that requires authentication.
+ * Require a valid JWT, then an active Premium plan.
  */
-import { verifyJwt } from '../services/authService.js'
+import { verifyJwt } from "../services/authService.js";
+import * as subscriptionService from "../services/subscriptionService.js";
 
-/**
- * Require a valid JWT. Puts decoded payload in req.user.
- */
 export function requireAuth(req, res, next) {
-  const header = req.headers.authorization
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Authorization header required' })
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Authorization header required" });
   }
 
-  const token = header.slice(7)
+  const token = header.slice(7);
   try {
-    req.user = verifyJwt(token)
-    next()
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' })
+    req.user = verifyJwt(token);
+    next();
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 }
 
-/**
- * Optionally attach user if token present; continues even without auth.
- */
 export function optionalAuth(req, res, next) {
-  const header = req.headers.authorization
-  if (header && header.startsWith('Bearer ')) {
+  const header = req.headers.authorization;
+  if (header && header.startsWith("Bearer ")) {
     try {
-      req.user = verifyJwt(header.slice(7))
+      req.user = verifyJwt(header.slice(7));
     } catch {
       // ignore invalid tokens in optional mode
     }
   }
-  next()
+  next();
+}
+
+export async function requirePremium(req, res, next) {
+  try {
+    const premium = await subscriptionService.isPremium(req.user.userId);
+    if (!premium) {
+      return res.status(403).json({
+        error: "premium_required",
+        message: "Доступно в SmartEGE Premium",
+      });
+    }
+    next();
+  } catch (err) {
+    console.error("[Auth] Premium check failed:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }

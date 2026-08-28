@@ -6,8 +6,13 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.js";
 import * as subscriptionService from "../services/subscriptionService.js";
+import { getBillingConfig } from "../config/billing.js";
 
 const router = Router();
+
+router.get("/pricing", (_req, res) => {
+  res.json(getBillingConfig());
+});
 
 router.get("/status", requireAuth, async (req, res) => {
   try {
