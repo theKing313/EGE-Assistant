@@ -50,7 +50,7 @@ async function activatePremium(payment) {
   if (payment?.status !== "succeeded" || !userId) return false;
 
   await subscriptionService.setPlan(Number(userId), "premium", {
-    aiLimitPerDay: 300,
+    aiLimitPerDay: 25,
     expiresAt: premiumExpiresAt(),
   });
   await analyticsRepository.track(Number(userId), "premium_conversion", {
@@ -65,15 +65,24 @@ router.get("/config", (_req, res) => {
 });
 
 router.post("/create-checkout", requireAuth, async (req, res) => {
-  if (process.env.NODE_ENV !== "production") {
+  const allowDevPremium = process.env.ENABLE_DEV_PREMIUM === "true";
+
+  if (process.env.NODE_ENV !== "production" && allowDevPremium) {
     await subscriptionService.setPlan(req.user.userId, "premium", {
-      aiLimitPerDay: 300,
+      aiLimitPerDay: 20,
     });
     const fullStatus = await subscriptionService.getStatus(req.user.userId);
     await analyticsRepository.track(req.user.userId, "premium_conversion", {
       source: "create-checkout",
     });
     return res.json({ mode: "development", status: fullStatus });
+  }
+
+  if (process.env.NODE_ENV !== "production" && !allowDevPremium) {
+    return res.status(403).json({
+      error: "Development premium is disabled",
+      message: "Set ENABLE_DEV_PREMIUM=true to enable the test upgrade flow.",
+    });
   }
 
   if (!yookassaConfigured()) {
@@ -125,16 +134,25 @@ router.get("/portal", requireAuth, (_req, res) => {
   res.status(501).json({ error: "Billing portal not supported" });
 });
 
-// Webhook: no auth — provider sends its own signature
+// Webhook: confirm the payment through YooKassa before activating Premium.
 router.post("/webhook", async (req, res) => {
   if (!yookassaConfigured()) return res.sendStatus(503);
 
   try {
-    const paymentId = req.body?.object?.id;
-    if (req.body?.event === "payment.succeeded" && paymentId) {
+    const rawBody = Buffer.isBuffer(req.body)
+      ? req.body.toString("utf8")
+      : typeof req.body === "string"
+        ? req.body
+        : JSON.stringify(req.body ?? {});
+
+    const body = JSON.parse(rawBody || "{}");
+    const paymentId = body?.object?.id;
+
+    if (body?.event === "payment.succeeded" && paymentId) {
       const payment = await yookassaRequest(`/payments/${paymentId}`);
       await activatePremium(payment);
     }
+
     return res.sendStatus(200);
   } catch (error) {
     console.error("[Billing] YooKassa webhook error:", error.message);

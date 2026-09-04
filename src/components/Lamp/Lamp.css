@@ -4,8 +4,7 @@
   display: inline-flex;
   position: relative;
   vertical-align: middle;
-  margin: 4px 0 4px 8px;
-  z-index: 9999;
+  z-index: 1;
 }
 
 .sege-lamp__btn {
@@ -16,8 +15,8 @@
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: #f8f9fa;
-  border: 1.5px solid #e5e7eb;
+  background: transparent;
+  border: 1.5px solid transparent;
   cursor: pointer;
   transition:
     transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -27,26 +26,21 @@
   user-select: none;
   outline: none;
   flex-shrink: 0;
+  padding: 0;
 }
 
 .sege-lamp__btn:hover {
-  transform: scale(1.15) translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  background: #fff;
-  border-color: #d1d5db;
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
 }
 
 .sege-lamp__btn:active,
 .sege-lamp__btn--active {
-  transform: scale(0.94);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-.sege-lamp__btn--active {
-  background: #fefce8;
-  border-color: #fde68a;
+  transform: scale(0.95);
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.5);
 }
 
 .sege-lamp__btn--loading {
@@ -54,7 +48,7 @@
 }
 
 .sege-lamp__icon {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -63,25 +57,27 @@
 }
 
 .sege-lamp__btn:hover .sege-lamp__icon {
-  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.7));
 }
 
 .sege-lamp__btn--active .sege-lamp__icon {
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.9));
 }
 
 .sege-lamp__spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #6b7280;
+  border: 2px solid rgba(251, 191, 36, 0.3);
+  border-top-color: rgba(251, 191, 36, 0.8);
   border-radius: 50%;
   display: inline-block;
   animation: sege-spin 0.7s linear infinite;
 }
 
 @keyframes sege-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error fallback tooltip */
@@ -104,4 +100,6 @@
   font-family: inherit;
   transition: background 0.15s;
 }
-.sege-error button:hover { background: #f3f4f6; }
+.sege-error button:hover {
+  background: #f3f4f6;
+}

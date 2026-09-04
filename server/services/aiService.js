@@ -18,6 +18,12 @@ export function isAvailable() {
   }
 }
 
+export async function healthCheck() {
+  const provider = getAIProvider();
+  if (!provider.isAvailable()) return false;
+  return provider.healthCheck();
+}
+
 export function providerInfo() {
   try {
     const provider = getAIProvider();

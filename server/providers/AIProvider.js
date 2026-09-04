@@ -14,6 +14,10 @@ export class AIProvider {
     return Boolean(this.apiKey);
   }
 
+  async healthCheck() {
+    return this.isAvailable();
+  }
+
   async generateHint() {
     throw new Error(`${this.name} provider does not implement generateHint`);
   }

@@ -28,7 +28,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run server"
+args = "npm start"
 waitForPort = 3001
 
 [workflows.workflow.metadata]

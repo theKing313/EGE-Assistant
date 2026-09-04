@@ -111,6 +111,12 @@ export default class GigaChatProvider extends AIProvider {
     );
   }
 
+  async healthCheck() {
+    if (!this.isAvailable()) return false;
+    await this.getAccessToken();
+    return true;
+  }
+
   async getAccessToken() {
     if (tokenCache && tokenCache.expiresAt > Date.now() + 30_000) {
       return tokenCache.value;

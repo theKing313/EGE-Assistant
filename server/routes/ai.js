@@ -76,8 +76,10 @@ router.post("/hint", requireAuth, async (req, res) => {
       requestId: err.requestId || null,
       responseBody: err.responseBody || null,
     });
-    res.status(502).json({
-      error: "AI request failed",
+    res.status(503).json({
+      error: "AI service temporarily unavailable",
+      code: "AI_PROVIDER_UNAVAILABLE",
+      message: "ИИ временно недоступен. Premium уже активен, попробуйте позже.",
       detail: err.message,
       provider: err.provider || null,
       phase: err.phase || null,

@@ -62,6 +62,7 @@ app.use(
 );
 
 // ── Body parsing ─────────────────────────────────────────────────────────────
+app.use("/api/billing/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "10kb" }));
 
 app.use("/premium", express.static("public/premium"));
