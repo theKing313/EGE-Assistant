@@ -42,3 +42,7 @@ AI_PROVIDER = "gigachat"
 GIGACHAT_CLIENT_ID = "01a01ec4-aeac-7941-a8ba-b2a60c315275"
 GIGACHAT_MODEL = "GigaChat"
 GIGACHAT_SCOPE = "GIGACHAT_API_PERS"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["npm", "start"]
