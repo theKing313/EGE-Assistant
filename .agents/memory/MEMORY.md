@@ -1,1 +1,2 @@
 - [SmartEGE architecture](smartege-arch.md) — Chrome extension + Express backend; build outputs to dist/, backend on port 3001
+- [Production schema compatibility](production-schema-compatibility.md) — verify existing database key types before applying migration foreign keys

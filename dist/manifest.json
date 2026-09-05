@@ -27,7 +27,7 @@
   "content_scripts": [
     {
       "js": [
-        "assets/content.js-loader-S4FenqjY.js"
+        "assets/content.js-loader-PHGQN8x8.js"
       ],
       "matches": [
         "*://reshu.ru/*",
@@ -66,8 +66,8 @@
         "*://sdamgia.ru/*"
       ],
       "resources": [
-        "assets/studyService-vY5oW-kq.js",
-        "assets/content.js-BJjZn0eq.js"
+        "assets/studyService-Bg9C-R_C.js",
+        "assets/content.js-BmnIFgOm.js"
       ],
       "use_dynamic_url": false
     }

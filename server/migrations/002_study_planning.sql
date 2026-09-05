@@ -5,7 +5,7 @@
 
 CREATE TABLE IF NOT EXISTS study_tasks (
   id            SERIAL PRIMARY KEY,
-  user_id       INTEGER     NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  user_id       UUID        NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   task_key      TEXT        NOT NULL,
   subject       TEXT,
   task_type     TEXT,
@@ -42,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_study_tasks_user_completed
 -- Anonymous product events (no emails / names / task text).
 CREATE TABLE IF NOT EXISTS analytics_events (
   id          SERIAL PRIMARY KEY,
-  user_id     INTEGER     REFERENCES users (id) ON DELETE SET NULL,
+  user_id     UUID        REFERENCES users (id) ON DELETE SET NULL,
   event_name  TEXT        NOT NULL,
   properties  JSONB       NOT NULL DEFAULT '{}'::jsonb,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()

@@ -37,11 +37,12 @@ outputType = "console"
 [userenv]
 
 [userenv.shared]
-VITE_API_URL = "https://a268a490-234e-47e5-8149-7a675f27ef76-00-2lcbihyksuwdv.janeway.replit.dev"
+VITE_API_URL = "https://ege-assistant--fredfard312.replit.app"
 AI_PROVIDER = "gigachat"
 GIGACHAT_CLIENT_ID = "01a01ec4-aeac-7941-a8ba-b2a60c315275"
 GIGACHAT_MODEL = "GigaChat"
 GIGACHAT_SCOPE = "GIGACHAT_API_PERS"
+PREMIUM_PRICE_RUB = "159"
 
 [deployment]
 deploymentTarget = "autoscale"

@@ -34,6 +34,7 @@ app.use(helmet());
 const allowedOrigins = [
   /^chrome-extension:\/\//, // Chrome extension (popup + content script)
   /\.replit\.dev$/, // Replit dev domains
+  "https://ege-assistant--fredfard312.replit.app", // Production frontend
   /\.repl\.co$/, // Replit deployed domains
   "http://localhost:5173", // Vite dev server
   "http://localhost:3001", // Local backend (same-origin curl / health checks)
@@ -71,6 +72,7 @@ app.use("/terms", express.static("public/premium/terms"));
 app.use("/privacy", express.static("public/premium/privacy"));
 app.use("/requisites", express.static("public/premium/requisites"));
 app.use("/contacts", express.static("public/premium/contacts"));
+app.use(express.static("dist"));
 
 // ── Global rate limit ────────────────────────────────────────────────────────
 app.use(
